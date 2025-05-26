@@ -1,5 +1,11 @@
+import "./index.css"
+
 function App() {
-  return <h1>Projeto Aires</h1>;
+  return (
+    <div>
+      <p className="text-red-500">aaaaaa</p>
+    </div>
+  )
 }
 
-export default App;
+export default App
