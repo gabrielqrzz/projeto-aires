@@ -1,19 +1,35 @@
-import { getAllConvidados, addConvidado } from '../models/convidadosModel.js';
+import db from '../config/db.js';
 
-export const listarConvidados = async (req, res) => {
+export const criarConvidado = async (req, res) => {
+  const {
+    nome, data_nascimento, cpf, email,
+    empresa, cargo, setor, tipo_contratacao
+  } = req.body;
+
   try {
-    const convidados = await getAllConvidados();
-    res.json(convidados);
+    const sql = `
+      INSERT INTO convidados 
+      (nome, data_nascimento, cpf, email, empresa, cargo, setor, tipo_contratacao)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+    await db.execute(sql, [
+      nome, data_nascimento, cpf, email,
+      empresa, cargo, setor, tipo_contratacao
+    ]);
+
+    res.status(201).json({ message: 'Convidado cadastrado com sucesso!' });
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar convidados' });
+    console.error('Erro ao cadastrar convidado:', error);
+    res.status(500).json({ error: 'Erro no servidor' });
   }
 };
 
-export const criarConvidado = async (req, res) => {
+export const listarConvidados = async (req, res) => {
   try {
-    await addConvidado(req.body);
-    res.status(201).json({ message: 'Convidado adicionado com sucesso' });
+    const [rows] = await db.execute('SELECT * FROM convidados');
+    res.json(rows);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao adicionar convidado' });
+    console.error('Erro ao buscar convidados:', error);
+    res.status(500).json({ error: 'Erro no servidor' });
   }
 };
