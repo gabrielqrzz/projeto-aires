@@ -1,4 +1,4 @@
-import { getAllConvidados, addConvidado } from "../models/convidadosmodel.js"
+import { getAllConvidados, addConvidado } from "../convidadosmodel.js"
 
 export const listarConvidados = async (req, res) => {
   try {
