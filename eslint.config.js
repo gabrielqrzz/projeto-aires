@@ -5,6 +5,23 @@ import reactRefresh from "eslint-plugin-react-refresh"
 
 export default [
   { ignores: ["dist"] },
+
+  {
+    files: ["Back-end/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "commonjs",
+      },
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      "no-undef": "error",
+    },
+  },
+
   {
     files: ["**/*.{js,jsx}"],
     languageOptions: {
@@ -27,7 +44,6 @@ export default [
       "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
       "react-refresh/only-export-components": [
         "warn",
-
         { allowConstantExport: true },
       ],
     },
