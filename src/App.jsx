@@ -1,22 +1,13 @@
-import { useState } from "react"
-import InputWithLabel from "./components/InputWithLabel"
 import Sidebar from "./components/Sidebar"
 import "./index.css"
+import GuestRegistration from "./components/GuestRegistration"
 
 function App() {
-  const [email, setEmail] = useState("")
   return (
-    <div className="flex">
+    <div className="h-screen flex">
       <Sidebar />
-      <div className="">
-        <InputWithLabel
-          label="Email"
-          name="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Digite seu email"
-        />
+      <div className="flex-1">
+        <GuestRegistration />
       </div>
     </div>
   )
