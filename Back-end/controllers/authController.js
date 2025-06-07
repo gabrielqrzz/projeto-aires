@@ -1,18 +1,23 @@
-const fakeUser = {
-  email: "teste@exemplo.com",
-  password: "123456",
+const db = require("./db")
+
+const getAllConvidados = (callback) => {
+  db.query("SELECT * FROM convidados", callback)
 }
 
-export const login = (req, res) => {
-  const { email, texto } = req.body
-
-  if (!email || !texto) {
-    return res.status(400).json({ mensagem: "Email e senha são obrigatórios." })
-  }
-
-  if (email === fakeUser.email && texto === fakeUser.password) {
-    return res.status(200).json({ mensagem: "Login bem-sucedido!" })
-  } else {
-    return res.status(401).json({ mensagem: "Credenciais inválidas." })
-  }
+const createConvidado = (convidado, callback) => {
+  const sql =
+    "INSERT INTO convidados (nome, data_nascimento, cpf, email, empresa, cargo, setor, tipo_contratacao) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+  const values = [
+    convidado.nome,
+    convidado.data_nascimento,
+    convidado.cpf,
+    convidado.email,
+    convidado.empresa,
+    convidado.cargo,
+    convidado.setor,
+    convidado.tipo_contratacao,
+  ]
+  db.query(sql, values, callback)
 }
+
+module.exports = { getAllConvidados, createConvidado }
