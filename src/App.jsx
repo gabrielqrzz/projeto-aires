@@ -1,15 +1,17 @@
-import Sidebar from "./components/Sidebar"
-import "./index.css"
+import { Routes, Route } from "react-router-dom"
 import GuestRegistration from "./components/GuestRegistration"
+
+import "./index.css"
+import HomePage from "./components/Home"
 
 function App() {
   return (
-    <div className="h-screen flex">
-      <Sidebar />
-      <div className="flex-1">
-        <GuestRegistration />
-      </div>
-    </div>
+    <>
+      <Routes>
+        <Route path="/cadastroConvidados" element={<GuestRegistration />} />
+        <Route path="/" element={<HomePage />} />
+      </Routes>
+    </>
   )
 }
 
