@@ -15,7 +15,7 @@ router.post("/guests", async (req, res) => {
   try {
     const sql = `
       INSERT INTO convidados 
-      (nome, nascimento, cpf, email, empresa, cargo, setor, contratacao)
+      (nome, data_nascimento, cpf, email, empresa, cargo, setor, contratacao)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `
     const [result] = await pool.query(sql, [
