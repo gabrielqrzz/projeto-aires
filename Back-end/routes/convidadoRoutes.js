@@ -21,7 +21,7 @@ router.post("/guests", async (req, res) => {
     const [result] = await pool.query(sql, [
       nome,
       nascimento,
-      cpf || null,
+      cpf,
       email,
       empresa,
       cargo || null,
