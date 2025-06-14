@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import InputWithLabel from "./InputWithLabel"
-import { X } from "react-feather" // Ícone de fechar (instale react-feather se quiser)
+import { X } from "react-feather"
 import Sidebar from "./Sidebar"
 
 const GuestRegistration = () => {

@@ -1,5 +1,12 @@
+import Sidebar from "./Sidebar"
+
 const HomePage = () => {
-  return <h1>home page</h1>
+  return (
+    <div className="flex ">
+      <Sidebar />
+      Homepage
+    </div>
+  )
 }
 
 export default HomePage

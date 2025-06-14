@@ -1,17 +1,14 @@
-const SidebarButton = ({ icon, text, active = false, onClick }) => {
+const SidebarButton = ({ icon, text, active, onClick }) => {
   return (
-    <div
+    <button
       onClick={onClick}
-      className={`flex items-center gap-3 py-4 px-4 rounded-lg font-semibold cursor-pointer transition-colors select-none
-        ${active ? "bg-brand-white text-brand-red" : "text-brand-white hover:bg-brand-white/10"}`}
+      className={`flex items-center gap-3 px-4 py-2 rounded-lg font-semibold ${
+        active ? "bg-brand-white text-brand-red" : "text-brand-white"
+      }`}
     >
-      <div
-        className={`text-xl ${active ? "text-brand-red" : "text-brand-white"}`}
-      >
-        {icon}
-      </div>
+      <span className="text-lg">{icon}</span>
       {text}
-    </div>
+    </button>
   )
 }
 

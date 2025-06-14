@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 import SidebarButton from "./SidebarButton"
 import {
   FaHome,
   FaUsers,
+  FaUserPlus,
   FaBoxes,
   FaCalendarAlt,
   FaChartLine,
@@ -10,7 +11,18 @@ import {
 } from "react-icons/fa"
 
 const Sidebar = () => {
-  const [active, setActive] = useState("Home")
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const menuItems = [
+    { text: "Início", icon: <FaHome />, path: "/" },
+    { text: "Colaboradores", icon: <FaUsers />, path: "/colaboradores" },
+    { text: "Convidados", icon: <FaUserPlus />, path: "/cadastroConvidados" },
+    { text: "Fornecedores", icon: <FaBoxes />, path: "/fornecedores" },
+    { text: "Eventos", icon: <FaCalendarAlt />, path: "/eventos" },
+    { text: "Financeiro", icon: <FaChartLine />, path: "/financeiro" },
+    { text: "Conversas", icon: <FaCommentDots />, path: "/conversas" },
+  ]
 
   return (
     <div className="h-screen min-w-72 bg-brand-red">
@@ -22,42 +34,15 @@ const Sidebar = () => {
         <p className="text-brand-white font-semibold">Participações S.A.</p>
 
         <div className="flex flex-col gap-10 p-2 px-0 pt-10">
-          <SidebarButton
-            icon={<FaHome />}
-            text="Home"
-            active={active === "Home"}
-            onClick={() => setActive("Home")}
-          />
-          <SidebarButton
-            icon={<FaUsers />}
-            text="Grupos"
-            active={active === "Grupos"}
-            onClick={() => setActive("Grupos")}
-          />
-          <SidebarButton
-            icon={<FaBoxes />}
-            text="Boxes"
-            active={active === "Boxes"}
-            onClick={() => setActive("Boxes")}
-          />
-          <SidebarButton
-            icon={<FaCalendarAlt />}
-            text="Calendário"
-            active={active === "Calendário"}
-            onClick={() => setActive("Calendário")}
-          />
-          <SidebarButton
-            icon={<FaChartLine />}
-            text="Análise"
-            active={active === "Análise"}
-            onClick={() => setActive("Análise")}
-          />
-          <SidebarButton
-            icon={<FaCommentDots />}
-            text="Comentários"
-            active={active === "Comentários"}
-            onClick={() => setActive("Comentários")}
-          />
+          {menuItems.map((item) => (
+            <SidebarButton
+              key={item.text}
+              icon={item.icon}
+              text={item.text}
+              active={location.pathname === item.path}
+              onClick={() => navigate(item.path)}
+            />
+          ))}
         </div>
       </div>
     </div>
