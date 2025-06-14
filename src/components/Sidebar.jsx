@@ -16,9 +16,13 @@ const Sidebar = () => {
 
   const menuItems = [
     { text: "Início", icon: <FaHome />, path: "/" },
-    { text: "Colaboradores", icon: <FaUsers />, path: "/colaboradores" },
+    {
+      text: "Colaboradores",
+      icon: <FaUsers />,
+      path: "/cadastroColaboradores",
+    },
     { text: "Convidados", icon: <FaUserPlus />, path: "/cadastroConvidados" },
-    { text: "Fornecedores", icon: <FaBoxes />, path: "/fornecedores" },
+    { text: "Fornecedores", icon: <FaBoxes />, path: "/cadastroFornecedores" },
     { text: "Eventos", icon: <FaCalendarAlt />, path: "/eventos" },
     { text: "Financeiro", icon: <FaChartLine />, path: "/financeiro" },
     { text: "Conversas", icon: <FaCommentDots />, path: "/conversas" },
