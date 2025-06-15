@@ -1,25 +1,24 @@
-const Convidado = require("./convidadoModel")
+const pool = require("./db");
 
-const getConvidados = (req, res) => {
-  Convidado.getAllConvidados((err, results) => {
-    if (err) return res.status(500).json({ erro: "Erro ao buscar convidados" })
-    res.json(results)
-  })
-}
+const criarConvidado = async (convidado) => {
+  const sql = `
+    INSERT INTO convidados (nome, nascimento, cpf, email, empresa, cargo, setor, contratacao)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
 
-const createConvidado = (req, res) => {
-  const convidado = req.body
+  const values = [
+    convidado.nome,
+    convidado.nascimento,
+    convidado.cpf,
+    convidado.email,
+    convidado.empresa,
+    convidado.cargo,
+    convidado.setor,
+    convidado.contratacao,
+  ];
 
-  Convidado.createConvidado(convidado, (err, result) => {
-    if (err)
-      return res.status(500).json({ erro: "Erro ao cadastrar convidado" })
-    res
-      .status(201)
-      .json({
-        mensagem: "Convidado cadastrado com sucesso",
-        id: result.insertId,
-      })
-  })
-}
+  const [result] = await pool.execute(sql, values);
+  return result;
+};
 
-module.exports = { getConvidados, createConvidado }
+module.exports = { criarConvidado };
