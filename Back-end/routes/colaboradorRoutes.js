@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const { cadastrarColaborador } = require("../controllers/colaboradorController");
+const express = require("express")
+const router = express.Router()
+const { cadastrarColaborador } = require("../controllers/colaboradorController")
 
-router.post("/colaboradores", cadastrarColaborador);
+router.post("/cadastroColaboradores", cadastrarColaborador)
 
-module.exports = router;
+module.exports = router
