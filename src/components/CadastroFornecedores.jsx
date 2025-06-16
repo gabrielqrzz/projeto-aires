@@ -40,7 +40,7 @@ const CadastroFornecedores = () => {
         </div>
 
         {/* Formulário */}
-        <form
+        <formwb
           onSubmit={handleSubmit}
           className="w-full max-w-3xl bg-white rounded-lg"
         >
