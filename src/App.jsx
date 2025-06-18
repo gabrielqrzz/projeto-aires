@@ -5,11 +5,15 @@ import "./index.css"
 import HomePage from "./components/HomePage"
 import CadastroColaborador from "./components/CadastroColaboradores"
 import CadastroFornecedores from "./components/CadastroFornecedores"
+import Login from "./components/Login"
+import Cadastro from "./components/Cadastro"
 
 function App() {
   return (
     <>
       <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/cadastroConvidados" element={<GuestRegistration />} />
         <Route
           path="/cadastroColaboradores"
