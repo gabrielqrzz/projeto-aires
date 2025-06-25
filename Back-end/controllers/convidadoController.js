@@ -1,25 +1,20 @@
-const Guest = require("../models/convidadoModel")
+const { criarConvidado } = require("../models/convidadoModel");
 
-const getGuests = (req, res) => {
-  Guest.getAllGuests((err, results) => {
-    if (err) return res.status(500).json({ erro: "Erro ao buscar convidados" })
-    res.json(results)
-  })
-}
+const cadastrarConvidado = async (req, res) => {
+  try {
+    const { nome, nascimento, cpf, email, empresa, cargo, setor, contratacao } = req.body;
 
-const createGuest = (req, res) => {
-  const guest = req.body
+    if (!nome || !nascimento || !email || !empresa || !contratacao) {
+      return res.status(400).json({ error: "Preencha os campos obrigatórios!" });
+    }
 
-  Guest.createGuest(guest, (err, result) => {
-    if (err)
-      return res.status(500).json({ erro: "Erro ao cadastrar convidado" })
-    res
-      .status(201)
-      .json({
-        mensagem: "Convidado cadastrado com sucesso",
-        id: result.insertId,
-      })
-  })
-}
+    await criarConvidado({ nome, nascimento, cpf, email, empresa, cargo, setor, contratacao });
 
-module.exports = { getGuests, createGuest }
+    res.status(201).json({ message: "Convidado cadastrado com sucesso!" });
+  } catch (error) {
+    console.error("Erro ao cadastrar convidado:", error);
+    res.status(500).json({ error: "Erro no servidor ao cadastrar convidado." });
+  }
+};
+
+module.exports = { cadastrarConvidado };
