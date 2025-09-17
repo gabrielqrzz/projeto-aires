@@ -25,12 +25,10 @@ const CadastroConvidados = () => {
       .catch((err) => console.error("Erro ao buscar convidados:", err))
   }, [])
 
-  // Atualizar campos do form
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
-  // Enviar form para o backend
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
@@ -42,7 +40,7 @@ const CadastroConvidados = () => {
 
       if (res.ok) {
         const novo = await res.json()
-        setConvidados([novo, ...convidados]) // atualiza tabela
+        setConvidados([novo, ...convidados])
         setFormData({
           nome: "",
           nascimento: "",
@@ -112,7 +110,7 @@ const CadastroConvidados = () => {
         {/* Modal de Cadastro */}
         {showForm && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-            <div className="bg-white p-6 rounded-2xl w-full max-w-2xl relative">
+            <div className="bg-white p-6 rounded-2xl w-full max-w-3xl relative">
               {/* Botão Fechar */}
               <button
                 onClick={() => setShowForm(false)}
@@ -126,6 +124,7 @@ const CadastroConvidados = () => {
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Linha 1 */}
                 <InputWithLabel
                   label="Nome Completo"
                   name="nome"
@@ -133,6 +132,8 @@ const CadastroConvidados = () => {
                   onChange={handleChange}
                   placeholder="Digite o nome"
                 />
+
+                {/* Linha 2 */}
                 <div className="flex flex-col md:flex-row gap-4">
                   <InputWithLabel
                     label="Data de Nascimento"
@@ -149,6 +150,8 @@ const CadastroConvidados = () => {
                     placeholder="000.000.000-00"
                   />
                 </div>
+
+                {/* Linha 3 */}
                 <InputWithLabel
                   label="E-mail"
                   name="email"
@@ -157,44 +160,53 @@ const CadastroConvidados = () => {
                   onChange={handleChange}
                   placeholder="Digite o e-mail"
                 />
-                <InputWithLabel
-                  label="Empresa"
-                  name="empresa"
-                  value={formData.empresa}
-                  onChange={handleChange}
-                  placeholder="Empresa/Instituição"
-                />
-                <InputWithLabel
-                  label="Cargo"
-                  name="cargo"
-                  value={formData.cargo}
-                  onChange={handleChange}
-                  placeholder="Cargo do convidado"
-                />
-                <InputWithLabel
-                  label="Setor"
-                  name="setor"
-                  value={formData.setor}
-                  onChange={handleChange}
-                  placeholder="Setor de atuação"
-                />
-                <div className="flex flex-col">
-                  <label className="mb-1 text-sm font-semibold text-brand-red">
-                    Tipo de Contratação
-                  </label>
-                  <select
-                    name="contratacao"
-                    value={formData.contratacao}
+
+                {/* Linha 4 */}
+                <div className="flex flex-col md:flex-row gap-4">
+                  <InputWithLabel
+                    label="Empresa"
+                    name="empresa"
+                    value={formData.empresa}
                     onChange={handleChange}
-                    className="px-2 py-2 border border-brand-red rounded-lg"
-                  >
-                    <option value="">Selecione</option>
-                    <option value="CLT">CLT</option>
-                    <option value="PJ">PJ</option>
-                    <option value="Estágio">Estágio</option>
-                  </select>
+                    placeholder="Empresa/Instituição"
+                  />
+                  <InputWithLabel
+                    label="Cargo"
+                    name="cargo"
+                    value={formData.cargo}
+                    onChange={handleChange}
+                    placeholder="Cargo do convidado"
+                  />
                 </div>
 
+                {/* Linha 5 */}
+                <div className="flex flex-col md:flex-row gap-4">
+                  <InputWithLabel
+                    label="Setor"
+                    name="setor"
+                    value={formData.setor}
+                    onChange={handleChange}
+                    placeholder="Setor de atuação"
+                  />
+                  <div className="flex-1 flex flex-col">
+                    <label className="mb-1 text-sm font-semibold text-brand-red">
+                      Tipo de Contratação
+                    </label>
+                    <select
+                      name="contratacao"
+                      value={formData.contratacao}
+                      onChange={handleChange}
+                      className="px-2 py-2 border border-brand-red rounded-lg"
+                    >
+                      <option value="">Selecione</option>
+                      <option value="CLT">CLT</option>
+                      <option value="PJ">PJ</option>
+                      <option value="Estágio">Estágio</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Botão */}
                 <div className="flex justify-center mt-6">
                   <button
                     type="submit"
