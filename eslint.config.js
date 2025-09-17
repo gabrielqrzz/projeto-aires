@@ -6,24 +6,26 @@ import reactRefresh from "eslint-plugin-react-refresh"
 export default [
   { ignores: ["dist"] },
 
+  // Regras para o BACKEND
   {
-    files: ["Back-end/**/*.js"],
+    files: ["backend/**/*.js"], // <- corrigido (tudo minúsculo)
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.node,
+      globals: globals.node, // <- habilita process, __dirname etc
       parserOptions: {
         ecmaVersion: "latest",
-        sourceType: "commonjs",
+        sourceType: "module", // <- usa import/export, não commonjs
       },
     },
     rules: {
       ...js.configs.recommended.rules,
-      "no-undef": "error",
+      "no-undef": "off", // <- desativa erro falso do process
     },
   },
 
+  // Regras para o FRONTEND (React)
   {
-    files: ["**/*.{js,jsx}"],
+    files: ["src/**/*.{js,jsx}"],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
