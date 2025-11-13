@@ -5,6 +5,7 @@ import morgan from "morgan"
 import convidadosRoutes from "./routes/convidados.js"
 import colaboradoresRoutes from "./routes/colaboradores.js"
 import fornecedoresRoutes from "./routes/fornecedores.js"
+import eventosRoutes from "./routes/eventos.js"
 
 const app = express()
 
@@ -16,6 +17,8 @@ app.use(morgan("dev"))
 app.use("/api/convidados", convidadosRoutes)
 app.use("/api/colaboradores", colaboradoresRoutes)
 app.use("/api/fornecedores", fornecedoresRoutes)
+
+app.use("/api/eventos", eventosRoutes)
 
 app.get("/api/health", (req, res) => res.json({ ok: true }))
 
