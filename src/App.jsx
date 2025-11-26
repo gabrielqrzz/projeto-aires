@@ -7,7 +7,8 @@ import CadastroColaborador from "./components/CadastroColaboradores"
 import CadastroFornecedores from "./components/CadastroFornecedores"
 import Login from "./components/Login"
 import Cadastro from "./components/Cadastro"
-import EventosPage from "./components/EventosPage"
+import Eventos from "./components/EventosPage"
+import EventoDetalhes from "./components/EventoDetalhes"
 
 function App() {
   return (
@@ -25,7 +26,8 @@ function App() {
           element={<CadastroFornecedores />}
         />
         <Route path="/" element={<HomePage />} />
-        <Route path="/eventos" element={<EventosPage />} />
+        <Route path="/eventos" element={<Eventos />} />
+        <Route path="/eventos/:id" element={<EventoDetalhes />} />
       </Routes>
     </>
   )

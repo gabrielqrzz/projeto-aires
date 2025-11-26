@@ -1,25 +1,25 @@
 import express from "express"
 import cors from "cors"
-import helmet from "helmet"
 import morgan from "morgan"
+import eventosRoutes from "./routes/eventos.js"
 import convidadosRoutes from "./routes/convidados.js"
 import colaboradoresRoutes from "./routes/colaboradores.js"
 import fornecedoresRoutes from "./routes/fornecedores.js"
-import eventosRoutes from "./routes/eventos.js"
 
 const app = express()
 
-app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }))
-app.use(helmet())
+app.use(cors())
 app.use(express.json())
 app.use(morgan("dev"))
 
-app.use("/api/convidados", convidadosRoutes)
+// Pasta pública para uploads
+app.use("/uploads", express.static("uploads"))
+
+// Rotas
+
 app.use("/api/colaboradores", colaboradoresRoutes)
+app.use("/api/convidados", convidadosRoutes)
 app.use("/api/fornecedores", fornecedoresRoutes)
-
-app.use("/api/eventos", eventosRoutes)
-
-app.get("/api/health", (req, res) => res.json({ ok: true }))
+app.use("/api", eventosRoutes)
 
 export default app

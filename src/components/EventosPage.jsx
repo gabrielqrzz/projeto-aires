@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import Sidebar from "./Sidebar"
 import EventoDetalhes from "./EventoDetalhes"
 
@@ -6,153 +6,221 @@ const API_URL = "http://localhost:4000"
 
 const EventosPage = () => {
   const [eventos, setEventos] = useState([])
-  const [anoSelecionado, setAnoSelecionado] = useState(null)
+  const [selectedYear, setSelectedYear] = useState(null)
   const [eventoSelecionado, setEventoSelecionado] = useState(null)
-  const [showForm, setShowForm] = useState(false)
-  const [formData, setFormData] = useState({
+
+  const [showModal, setShowModal] = useState(false)
+  const [novoEvento, setNovoEvento] = useState({
     nome: "",
-    descricao: "",
     ano: "",
-    data: "",
+    descricao: "",
   })
 
+  const fetchEventos = async (ano = null) => {
+    try {
+      const url = ano
+        ? `${API_URL}/api/eventos/${ano}`
+        : `${API_URL}/api/eventos`
+      const res = await fetch(url)
+      if (!res.ok) throw new Error("Erro ao buscar eventos")
+      const data = await res.json()
+      setEventos(data)
+      setSelectedYear(ano)
+    } catch {
+      setEventos([])
+    }
+  }
+
   useEffect(() => {
-    fetch(`${API_URL}/api/eventos`)
-      .then((res) => res.json())
-      .then((data) => setEventos(data))
-      .catch((err) => console.error("Erro ao buscar eventos:", err))
+    fetchEventos()
   }, [])
 
-  const anos = [...new Set(eventos.map((e) => e.ano))].sort((a, b) => b - a)
-  const eventosDoAno = anoSelecionado
-    ? eventos.filter((e) => e.ano === anoSelecionado)
-    : eventos
-
-  const handleSubmit = async (e) => {
+  const handleCreate = async (e) => {
     e.preventDefault()
     const res = await fetch(`${API_URL}/api/eventos`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(novoEvento),
     })
-    const novo = await res.json()
-    setEventos([novo, ...eventos])
-    setShowForm(false)
+
+    if (res.ok) {
+      setShowModal(false)
+      setNovoEvento({ nome: "", ano: "", descricao: "" })
+      fetchEventos(selectedYear)
+    }
   }
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+  const deleteEvento = async (id, e) => {
+    e.stopPropagation()
+    if (!confirm("Tem certeza que deseja excluir este evento?")) return
+
+    const res = await fetch(`${API_URL}/api/eventos/${id}`, {
+      method: "DELETE",
+    })
+
+    if (res.ok) {
+      fetchEventos(selectedYear)
+      if (eventoSelecionado?.id === id) setEventoSelecionado(null)
+    }
   }
+
+  const abrirDetalhe = (ev) => setEventoSelecionado(ev)
 
   return (
     <div className="h-screen flex">
       <Sidebar />
-      <div className="flex-1 p-8 mt-20">
-        {!eventoSelecionado ? (
-          <>
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-semibold text-brand-red">Eventos</h1>
-              <button
-                className="bg-brand-red text-white px-4 py-2 rounded-lg"
-                onClick={() => setShowForm(true)}
-              >
-                Cadastrar Evento
-              </button>
-            </div>
 
-            {/* Filtro por ano */}
-            <div className="flex gap-2 mb-6">
-              {anos.map((ano) => (
+      <div className="flex-1 p-0 mt-16 overflow-y-auto">
+        {eventoSelecionado ? (
+          <EventoDetalhes
+            evento={eventoSelecionado}
+            onVoltar={() => setEventoSelecionado(null)}
+          />
+        ) : (
+          <>
+            {/* ---------------- H E A D E R ● V I S U A L ---------------- */}
+            <header className="w-full bg-[#FFF] border-b-4 border-brand-red p-8 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-4">
+                <img src="/logo.png" alt="Logo" className="w-14 h-auto" />
+                <div>
+                  <h1 className="text-3xl font-bold text-brand-red">Eventos</h1>
+                  <p className="text-gray-600 font-medium">
+                    Gerenciamento de eventos ISG Participações
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowModal(true)}
+                className="bg-brand-red text-white px-5 py-3 rounded-lg shadow hover:bg-red-700 transition"
+              >
+                + Criar Evento
+              </button>
+            </header>
+
+            {/* ---------------- B A R R A ● D E ● A N O S ---------------- */}
+            <div className="p-6 flex gap-4 items-center flex-wrap border-b bg-gray-50">
+              {[2022, 2023, 2024, 2025].map((ano) => (
                 <button
                   key={ano}
-                  onClick={() => setAnoSelecionado(ano)}
-                  className={`px-3 py-1 rounded-full border border-brand-red ${
-                    anoSelecionado === ano
-                      ? "bg-brand-red text-white"
-                      : "text-brand-red"
+                  onClick={() => fetchEventos(ano)}
+                  className={`px-5 py-2 rounded-lg border transition font-medium ${
+                    selectedYear === ano
+                      ? "bg-brand-red text-white border-brand-red shadow"
+                      : "bg-white text-brand-red border-brand-red hover:bg-red-50"
                   }`}
                 >
                   {ano}
                 </button>
               ))}
+
+              <button
+                onClick={() => fetchEventos(null)}
+                className="px-5 py-2 rounded-lg bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+              >
+                Ver Todos
+              </button>
             </div>
 
-            {/* Lista de eventos */}
-            <div className="grid md:grid-cols-2 gap-4">
-              {eventosDoAno.map((ev) => (
-                <div
-                  key={ev.id}
-                  onClick={() => setEventoSelecionado(ev)}
-                  className="border border-brand-red p-4 rounded-xl cursor-pointer hover:bg-brand-red hover:text-white transition"
-                >
-                  <h2 className="font-semibold text-lg">{ev.nome}</h2>
-                  <p className="text-sm">{ev.descricao}</p>
-                  <p className="text-xs text-gray-500">{ev.data}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Modal de cadastro */}
-            {showForm && (
-              <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-                <div className="bg-white p-6 rounded-2xl w-full max-w-md relative">
-                  <button
-                    onClick={() => setShowForm(false)}
-                    className="absolute top-3 right-3 text-brand-red"
+            {/* ---------------- G R I D ● D E ● C A R D S ---------------- */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-8">
+              {eventos.length > 0 ? (
+                eventos.map((ev) => (
+                  <article
+                    key={ev.id}
+                    onClick={() => abrirDetalhe(ev)}
+                    className="relative bg-white rounded-2xl shadow-md hover:shadow-lg cursor-pointer border border-gray-200 overflow-hidden transition"
                   >
-                    ✕
-                  </button>
-                  <h2 className="text-xl font-semibold text-brand-red mb-4 text-center">
-                    Cadastrar Evento
-                  </h2>
-                  <form onSubmit={handleSubmit} className="space-y-3">
-                    <input
-                      name="nome"
-                      placeholder="Nome do evento"
-                      value={formData.nome}
-                      onChange={handleChange}
-                      className="w-full border border-brand-red px-2 py-1 rounded-lg"
-                      required
-                    />
-                    <textarea
-                      name="descricao"
-                      placeholder="Descrição"
-                      value={formData.descricao}
-                      onChange={handleChange}
-                      className="w-full border border-brand-red px-2 py-1 rounded-lg"
-                    />
-                    <input
-                      name="ano"
-                      type="number"
-                      placeholder="Ano"
-                      value={formData.ano}
-                      onChange={handleChange}
-                      className="w-full border border-brand-red px-2 py-1 rounded-lg"
-                      required
-                    />
-                    <input
-                      name="data"
-                      type="date"
-                      value={formData.data}
-                      onChange={handleChange}
-                      className="w-full border border-brand-red px-2 py-1 rounded-lg"
-                    />
-                    <button
-                      type="submit"
-                      className="bg-brand-red text-white w-full py-2 rounded-lg font-semibold"
-                    >
-                      Salvar
-                    </button>
-                  </form>
-                </div>
-              </div>
-            )}
+                    {/* Linha Vermelha no topo */}
+                    <div className="w-full h-2 bg-brand-red"></div>
+
+                    <div className="p-5">
+                      <h3 className="text-xl font-bold text-brand-red">
+                        {ev.nome}
+                      </h3>
+
+                      <p className="text-sm text-gray-700 mt-3 line-clamp-3">
+                        {ev.descricao || "Sem descrição informada."}
+                      </p>
+
+                      <div className="flex justify-between items-center mt-4">
+                        <span className="text-sm text-gray-500">{ev.ano}</span>
+
+                        <button
+                          onClick={(e) => deleteEvento(ev.id, e)}
+                          className="text-red-500 hover:underline text-sm"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <p className="text-gray-500 italic">
+                  Nenhum evento encontrado.
+                </p>
+              )}
+            </div>
           </>
-        ) : (
-          <EventoDetalhes
-            evento={eventoSelecionado}
-            onVoltar={() => setEventoSelecionado(null)}
-          />
+        )}
+
+        {/* ---------------- M O D A L ● D E ● C R I A Ç Ã O ---------------- */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+              <h2 className="text-xl font-semibold text-brand-red mb-4">
+                Novo Evento
+              </h2>
+
+              <form onSubmit={handleCreate} className="flex flex-col gap-3">
+                <input
+                  required
+                  type="text"
+                  placeholder="Nome"
+                  className="border p-2 rounded-lg"
+                  value={novoEvento.nome}
+                  onChange={(e) =>
+                    setNovoEvento({ ...novoEvento, nome: e.target.value })
+                  }
+                />
+                <input
+                  required
+                  type="number"
+                  placeholder="Ano"
+                  className="border p-2 rounded-lg"
+                  value={novoEvento.ano}
+                  onChange={(e) =>
+                    setNovoEvento({ ...novoEvento, ano: e.target.value })
+                  }
+                />
+                <textarea
+                  placeholder="Descrição"
+                  className="border p-2 rounded-lg"
+                  value={novoEvento.descricao}
+                  onChange={(e) =>
+                    setNovoEvento({ ...novoEvento, descricao: e.target.value })
+                  }
+                />
+
+                <div className="flex justify-between pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="px-4 py-2 bg-gray-200 rounded-lg"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-brand-red text-white rounded-lg"
+                  >
+                    Criar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </div>
     </div>

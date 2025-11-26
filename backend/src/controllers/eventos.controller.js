@@ -1,79 +1,140 @@
-import { pool } from "../db.js"
-import multer from "multer"
-import path from "path"
 import fs from "fs"
+import path from "path"
+import pool from "../db.js"
 
-// Configuração do multer (upload de arquivos)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = "src/uploads"
-    if (!fs.existsSync(uploadPath))
-      fs.mkdirSync(uploadPath, { recursive: true })
-    cb(null, uploadPath)
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname)
-  },
-})
+const uploadDir = path.resolve("uploads")
 
-export const upload = multer({ storage })
+// Garante que a pasta exista
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true })
+}
 
-// Listar todos os eventos
-export const getAllEventos = async (req, res) => {
+// 📌 LISTAR TODOS OS EVENTOS
+export const getEventos = async (req, res) => {
   try {
-    const [rows] = await pool.query(
-      "SELECT * FROM eventos ORDER BY ano DESC, data DESC"
-    )
+    const [rows] = await pool.query("SELECT * FROM eventos ORDER BY ano DESC")
     res.json(rows)
   } catch (err) {
+    console.error("Erro ao listar eventos:", err)
     res.status(500).json({ error: "Erro ao listar eventos" })
   }
 }
 
-// Criar novo evento
+// 📌 LISTAR EVENTOS POR ANO
+export const getEventosPorAno = async (req, res) => {
+  try {
+    const { ano } = req.params
+    const [rows] = await pool.query("SELECT * FROM eventos WHERE ano = ?", [
+      ano,
+    ])
+    res.json(rows)
+  } catch (err) {
+    console.error("Erro ao listar eventos por ano:", err)
+    res.status(500).json({ error: "Erro ao listar eventos por ano" })
+  }
+}
+
+// 📌 CRIAR NOVO EVENTO
 export const createEvento = async (req, res) => {
   try {
-    const { nome, descricao, ano, data } = req.body
+    const { nome, ano, descricao } = req.body
     const [result] = await pool.query(
-      "INSERT INTO eventos (nome, descricao, ano, data) VALUES (?, ?, ?, ?)",
-      [nome, descricao, ano, data]
+      "INSERT INTO eventos (nome, ano, descricao) VALUES (?, ?, ?)",
+      [nome, ano, descricao]
     )
-    const [novo] = await pool.query("SELECT * FROM eventos WHERE id = ?", [
-      result.insertId,
-    ])
-    res.status(201).json(novo[0])
+    res.status(201).json({ id: result.insertId, nome, ano, descricao })
   } catch (err) {
+    console.error("Erro ao criar evento:", err)
     res.status(500).json({ error: "Erro ao criar evento" })
   }
 }
 
-// Upload de arquivo
+// 📌 UPLOAD DE ARQUIVOS
 export const uploadArquivo = async (req, res) => {
   try {
     const { id } = req.params
     const file = req.file
 
+    if (!file) {
+      console.error("Nenhum arquivo foi enviado.")
+      return res.status(400).json({ error: "Nenhum arquivo enviado" })
+    }
+
+    const caminho = `/uploads/${file.filename}`
+
     await pool.query(
-      "INSERT INTO arquivos_evento (evento_id, nome_arquivo, caminho_arquivo, tipo, tamanho) VALUES (?, ?, ?, ?, ?)",
-      [id, file.originalname, file.path, file.mimetype, file.size]
+      "INSERT INTO arquivos (evento_id, nome_arquivo, caminho) VALUES (?, ?, ?)",
+      [id, file.originalname, caminho]
     )
 
-    res.status(200).json({ message: "Arquivo enviado com sucesso!" })
+    res.status(201).json({ message: "Arquivo anexado com sucesso", caminho })
   } catch (err) {
-    res.status(500).json({ error: "Erro ao fazer upload do arquivo" })
+    console.error("Erro ao fazer upload:", err)
+    res.status(500).json({ error: "Erro ao enviar arquivo" })
   }
 }
 
-// Listar arquivos de um evento
+// 📌 LISTAR ARQUIVOS DE UM EVENTO
 export const getArquivosEvento = async (req, res) => {
   try {
     const { id } = req.params
     const [rows] = await pool.query(
-      "SELECT * FROM arquivos_evento WHERE evento_id = ?",
+      "SELECT * FROM arquivos WHERE evento_id = ?",
       [id]
     )
     res.json(rows)
   } catch (err) {
-    res.status(500).json({ error: "Erro ao listar arquivos do evento" })
+    console.error("Erro ao listar arquivos:", err)
+    res.status(500).json({ error: "Erro ao listar arquivos" })
+  }
+}
+
+// 📌 ABRIR / BAIXAR ARQUIVO
+export const downloadArquivo = async (req, res) => {
+  try {
+    const { nome } = req.params
+    const filePath = path.join(uploadDir, nome)
+
+    if (!fs.existsSync(filePath)) {
+      console.error("Arquivo não encontrado:", filePath)
+      return res.status(404).json({ error: "Arquivo não encontrado" })
+    }
+
+    res.sendFile(filePath)
+  } catch (err) {
+    console.error("Erro ao abrir arquivo:", err)
+    res.status(500).json({ error: "Erro ao abrir arquivo" })
+  }
+}
+
+export const deleteEvento = async (req, res) => {
+  try {
+    const { id } = req.params
+    await pool.query("DELETE FROM eventos WHERE id = ?", [id])
+    res.json({ message: "Evento excluído com sucesso" })
+  } catch {
+    res.status(500).json({ error: "Erro ao excluir evento" })
+  }
+}
+
+// 📌 EXCLUIR ARQUIVO
+export const deleteArquivo = async (req, res) => {
+  try {
+    const { id } = req.params
+    const [rows] = await pool.query("SELECT * FROM arquivos WHERE id = ?", [id])
+
+    if (rows.length === 0) {
+      console.error("Arquivo não encontrado no banco de dados.")
+      return res.status(404).json({ error: "Arquivo não encontrado" })
+    }
+
+    const filePath = path.join(uploadDir, path.basename(rows[0].caminho))
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
+
+    await pool.query("DELETE FROM arquivos WHERE id = ?", [id])
+    res.json({ message: "Arquivo excluído com sucesso" })
+  } catch (err) {
+    console.error("Erro ao excluir arquivo:", err)
+    res.status(500).json({ error: "Erro ao excluir arquivo" })
   }
 }
